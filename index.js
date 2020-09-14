@@ -1,0 +1,1 @@
+import defineObjectType from "./scripts/define-object-type/index.js"
