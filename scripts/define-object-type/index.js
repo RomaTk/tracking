@@ -1,13 +1,15 @@
 /**
  * 
- * Function returns 'A' or 'B' or 'C' or 'D' 
- * If it changed it won't say that is was changed (type A)
- * if it changed it will say that it was changed (type B)
- * if its property was changed it will say that it was changed (type C)
- * if it is object created by this library (type D)
+ * Function returns 'A' or 'B' or 'C' or 'D' according to parameter
  * 
- * @param object {*} The type of this object should be defined 
  * 
+ * 1) A - number
+ * 2) B - string
+ * 3) C - any object if it is not any other option
+ * 4) D - object created by this library
+ * 
+ * @param {*} object The type of this object should be defined
+ * @return {'A' | 'B' | 'C' | 'D'} String showing defined type
  */
 
 export default (object) => {
