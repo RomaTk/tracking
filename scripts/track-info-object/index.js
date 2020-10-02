@@ -28,6 +28,8 @@ export default class TrackInfoObject extends LabelClass {
 	set object(object) {
 		if (object === undefined) {
 			//TODO throw error id = 2
+			console.log('Error: 2');
+			return;
 		} else {
 			this._object = object;
 			this._objectType = defineObjectType(object);
@@ -53,6 +55,8 @@ export default class TrackInfoObject extends LabelClass {
 			this._callFunction = func;
 		} else {
 			//TODO throw error id = 3
+			console.log('Error: 3');
+			return;
 		}
 	}
 
@@ -72,6 +76,8 @@ export default class TrackInfoObject extends LabelClass {
 	 */
 	set objectType(objectType) {
 		//TODO throw error with id = 4
+		console.log('Error: 4');
+		return;
 	}
 	/**
 	 *
