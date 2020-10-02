@@ -1,5 +1,6 @@
 import defineObjectType from '../define-object-type/index.js';
 import LabelClass from '../label-class.js';
+import ErrorListener from "../error-listener/index.js";
 
 
 /**
@@ -27,9 +28,7 @@ export default class TrackInfoObject extends LabelClass {
 	 */
 	set object(object) {
 		if (object === undefined) {
-			//TODO throw error id = 2
-			console.log('Error: 2');
-			return;
+			ErrorListener.throwError(0);
 		} else {
 			this._object = object;
 			this._objectType = defineObjectType(object);
@@ -54,9 +53,7 @@ export default class TrackInfoObject extends LabelClass {
 		if (func === undefined || typeof func === 'function') {
 			this._callFunction = func;
 		} else {
-			//TODO throw error id = 3
-			console.log('Error: 3');
-			return;
+			ErrorListener.throwError(0);
 		}
 	}
 
@@ -75,9 +72,7 @@ export default class TrackInfoObject extends LabelClass {
 	 * 
 	 */
 	set objectType(objectType) {
-		//TODO throw error with id = 4
-		console.log('Error: 4');
-		return;
+		ErrorListener.throwError(0);
 	}
 	/**
 	 *

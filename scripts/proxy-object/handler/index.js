@@ -1,6 +1,7 @@
 import LabelClass from '../../label-class.js';
 import TrackInfoObject from '../../track-info-object/index.js';
 import defineObjectType from "../../define-object-type/index.js";
+import ErrorListener from "../../error-listener/index.js";
 
 /**
  * This is a handler for Proxy object
@@ -26,13 +27,9 @@ export default class ProxyHandler extends LabelClass {
 		
 		// check admissible types
 		if (target === undefined || defineObjectType(target) !== 'C') {
-			// TODO throw error with id = 5
-			console.log('Error: 5');
-			return;
+			ErrorListener.throwError(0);
 		} else if (prop === undefined || (defineObjectType(prop) !== 'A' && defineObjectType(prop) !== 'B')) {
-			// TODO throw error with id = 6
-			console.log('Error: 6');
-			return;
+			ErrorListener.throwError(0);
 		}
 		return Reflect.set(target, prop, value);
 	}
