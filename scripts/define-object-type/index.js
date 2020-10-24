@@ -1,11 +1,14 @@
+import LabelClass from '../label-class.js';
+import ProxyHandler, {nameOfproperty as nameOfHandlerProperty} from "../proxy-object/handler/index.js";
+
 /**
  * 
- * Function returns 'A' or 'B' or 'C' or 'D' according to parameter
+ * Function returns 'A' or 'B' or 'C' or 'D' or 'E' according to parameter
  * 
  * 
  * 1) A - number
  * 2) B - string
- * 3) C - any object if it is not any other option
+ * 3) C - object with type not A, B, D, E
  * 4) D - object created by this library
  * 5) E - symbol
  * 
@@ -16,13 +19,19 @@
 export default (object) => {
 	let name = typeof object;
 
-	//TODO implement type D
-	//TODO implement type E
 	if (name === 'number') {
 		return 'A';
 	} else if (name === 'string') {
 		return 'B';
+	} else if (name === 'symbol') {
+		return 'E';
 	} else {
-		return 'C';
+		if (object instanceof LabelClass) {
+			return 'D'
+		} else if (object[nameOfHandlerProperty] instanceof ProxyHandler) {
+			return 'D'
+		} else {
+			return 'C';
+		}
 	}
 };
