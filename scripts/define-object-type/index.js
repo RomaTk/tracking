@@ -7,15 +7,17 @@
  * 2) B - string
  * 3) C - any object if it is not any other option
  * 4) D - object created by this library
+ * 5) E - symbol
  * 
  * @param {*} object The type of this object should be defined
- * @return {'A' | 'B' | 'C' | 'D'} String showing defined type
+ * @return {'A' | 'B' | 'C' | 'D' | 'E'} String showing defined type
  */
 
 export default (object) => {
 	let name = typeof object;
 
 	//TODO implement type D
+	//TODO implement type E
 	if (name === 'number') {
 		return 'A';
 	} else if (name === 'string') {

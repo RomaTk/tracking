@@ -4,6 +4,8 @@ import defineObjectType from "../../define-object-type/index.js";
 import ErrorListener from "../../error-listener/index.js";
 import Command from "../../command-object/index.js";
 
+export const nameOfproperty = 'proxyHandler';
+
 /**
  * This is a handler for Proxy object
  */
@@ -15,13 +17,20 @@ export default class ProxyHandler extends LabelClass {
 	 */
 	constructor(target, func = undefined) {
 		super();
-		this.info = new TrackInfoObject(target, func);
+		this._info = new TrackInfoObject(target, func);
+	}
+
+	/**
+	 * @returns {TrackInfoObject}
+	 */
+	get info() {
+		return this._info;
 	}
 
 	/**
 	 * 
 	 * @param {*} target the object which was changed
-	 * @param {string|number} prop the property of object (or name of command (if value instance of Command)
+	 * @param {string|number|symbol} prop the property of object (or name of command (if value instance of Command)
 	 * @param {*} value the new value or Command object
 	 * 
 	 * if (value instanceof Command){ // Command - object by this library
@@ -40,17 +49,48 @@ export default class ProxyHandler extends LabelClass {
 		if (value instanceof Command) {
 			return value.execute(this, target, prop, value);
 		} else {
-			return Reflect.set(target, prop, value);
+			const oldValue = Reflect.get(target, prop);
+			const resultOfReflect = Reflect.set(target, prop, value);
+			if (resultOfReflect) {
+				if (value instanceof Object) {
+					if (this.info.isTrackingProxy(value)) {
+						value[nameOfproperty].info.addParentIfNecessary(this.info.proxy, prop);
+					}
+				}
+
+				const argsToCommand = {
+					props: [prop],
+					oldValue: oldValue,
+					newValue: value
+				};
+				const sayParentsCommand = new Command(function (target, prop, value) {
+					const commandArguments = value.args[0];
+					if (this.info.callFunction) {
+						this.info.callFunction(target, commandArguments.props, commandArguments.oldValue, commandArguments.newValue);
+					}
+					for (const parentProperty in this.info.parents) {
+						for (const parent of this.info.parents[parentProperty]) {
+							argsToCommand.props.push(parentProperty);
+							parent.runFunction = sayParentsCommand;
+							argsToCommand.props.pop(parentProperty);
+						}
+					}
+				}, argsToCommand);
+				this.info.proxy.runFunction = sayParentsCommand;
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
 	/**
 	 * 
 	 * @param {*} target the object which value was taken
-	 * @param {string|number} prop the property of object
-	 * @param {*} value the new value
+	 * @param {string|number|symbol} prop the property of object
+	 * @param {*} reciever the reciever
 	 */
-	get(target = undefined, prop = undefined, value = undefined) {
+	get(target = undefined, prop = undefined, reciever = undefined) {
 
 		// check admissible types
 		if (target === undefined || defineObjectType(target) !== 'C') {
@@ -58,6 +98,6 @@ export default class ProxyHandler extends LabelClass {
 		} else if (prop === undefined || (defineObjectType(prop) !== 'A' && defineObjectType(prop) !== 'B')) {
 			ErrorListener.throwError(0);
 		}
-		return Reflect.get(target, prop, value);
+		return Reflect.get(target, prop, reciever);
 	}
 };
