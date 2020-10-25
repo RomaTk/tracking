@@ -2,16 +2,16 @@ import defineObjectType from '../define-object-type/index.js';
 import LabelClass from '../label-class.js';
 import ErrorListener from "../error-listener/index.js";
 import ProxyHandler, {nameOfproperty as nameOfHandlerProperty} from "../proxy-object/handler/index.js";
+import TrackingProxy from "../proxy-object/index.js";
 
 /**
- * This object saves info about some object
+ * This object saves info for ProxyHandler
  */
 export default class TrackInfoObject extends LabelClass {
 	/**
-	 * 
 	 * @param {*} object object about which should be info saved
-	 * @param {function | undefined} func  function which should be called when this object changed
-	 * @param {object} parents object which have this object as property 
+	 * @param {function=} func  function which should be called when this object changed
+	 * @param {Object.<string, (TrackingProxy)[]>=} parents TrackingProxy objects which have this object as property
 	 */
 	constructor(object = undefined, func = undefined, parents = {}) {
 		super();
@@ -21,8 +21,11 @@ export default class TrackInfoObject extends LabelClass {
 	}
 
 
-
-	set proxy(object) {
+	/**
+	 * Set TrackingProxy object to info
+	 * @param {TrackingProxy} object TrackingProxy object
+	 */
+	set proxy(object = undefined) {
 		if (object instanceof Object) {
 			if (this.isTrackingProxy(object)) {
 				this._proxy = object;
@@ -34,34 +37,52 @@ export default class TrackInfoObject extends LabelClass {
 		}
 	}
 
+	/**
+	 * Return TrackingProxy from info
+	 * @returns {TrackingProxy | undefined} TrackingProxy object
+	 */
 	get proxy() {
 		return this._proxy;
 	}
 
-	isTrackingProxy(object) {
-		if (object[nameOfHandlerProperty] && object[nameOfHandlerProperty] instanceof ProxyHandler) {
-			return true;
+	/**
+	 * Check is object TrackingProxy
+	 * @param {object} object
+	 * @returns {boolean} true / false
+	 */
+	isTrackingProxy(object = undefined) {
+		if (object !== undefined && object instanceof Object) {
+			if (object[nameOfHandlerProperty] && object[nameOfHandlerProperty] instanceof ProxyHandler) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			ErrorListener.throwError(0);
 		}
 	}
 
 	/**
-	 *
-	 * @param {*} object object about which should be info saved
-	 * 
+	 * Set object which is tracked
+	 * @param {object} object tracked object
 	 */
-	set object(object) {
+	set object(object = undefined) {
 		if (object === undefined) {
 			ErrorListener.throwError(0);
 		} else {
-			this._object = object;
-			this._objectType = defineObjectType(object);
+			const definedType = defineObjectType(object);
+			if (definedType === 'C' || definedType === 'D') {
+				this._object = object;
+				this._objectType = defineObjectType(object);
+			} else {
+				ErrorListener.throwError(0);
+			}
 		}
 	}
 
 	/**
-	 * @return {*} object about which was info saved
+	 * Return object which is tracked
+	 * @returns {object} tracked object
 	 */
 	get object() {
 		return this._object;
@@ -70,11 +91,10 @@ export default class TrackInfoObject extends LabelClass {
 
 
 	/**
-	 *
-	 * @param {function | undefined} func function which should be called when this object changed
-	 * 
+	 * Set function which should be called when this object changed
+	 * @param {function=} func function which should be called when this object changed
 	 */
-	set callFunction(func) {
+	set callFunction(func = undefined) {
 		if (func === undefined || typeof func === 'function') {
 			this._callFunction = func;
 		} else {
@@ -83,33 +103,35 @@ export default class TrackInfoObject extends LabelClass {
 	}
 
 	/**
-	 * 
-	 * @return {function | undefined} function which calls when this object changes
-	 * 
+	 * Return function which should be changed
+	 * @returns {function | undefined} function which calls when this object changes
 	 */
 	get callFunction() {
 		return this._callFunction;
 	}
 
 	/**
-	 * 
-	 * @param {defineObjectType()} objectType type of object about which info was saved
-	 * 
+	 * Set the type of object
+	 * @param {'C' | 'D'} type of object about which info was saved
 	 */
-	set objectType(objectType) {
-		ErrorListener.throwError(0);
+	set objectType(type = undefined) {
+		if (type === 'C' || type === 'D') {
+			this._objectType = type;
+		} else {
+			ErrorListener.throwError(0);
+		}
 	}
 	/**
-	 *
-	 * @return {defineObjectType()} type of object about which info was saved
-	 *
+	 * Retun the type of object
+	 * @returns {'C' | 'D' } type of object about which info was saved
 	 */
 	get objectType() {
 		return this._objectType;
 	}
 
 	/**
-	 * @param {Array} object array of parents TrackingProxy
+	 * Sets the parent of object
+	 * @param {{Object.<string, (TrackingProxy)[]>=}} object
 	 */
 	set parents(object) {
 		if (!(object instanceof Object)) {
@@ -122,7 +144,7 @@ export default class TrackInfoObject extends LabelClass {
 						this.addParent(parent, parentProp);
 					}
 				} else {
-					//TODO throw error if it is not array
+					ErrorListener.throwError(0);
 				}
 			}
 			if (!this._parents) {
@@ -132,17 +154,19 @@ export default class TrackInfoObject extends LabelClass {
 	}
 
 	/**
-	 * @return {Array} array of parents TrackingProxy
+	 * Sets the parent of object
+	 * @returns {{Object.<string, (TrackingProxy)[]>=}} object
 	 */
 	get parents() {
 		return this._parents;
 	}
 
 	/**
-	 * 
+	 * Add parent with current property with throwingError if it exists
 	 * @param {TrackInfoObject} object
+	 * @param {string|number|symbol} prop
 	 */
-	addParent(object, prop) {
+	addParent(object = undefined, prop = undefined) {
 		if (this.isTrackingProxy(object) &&
 			((defineObjectType(prop) === 'A') || defineObjectType(prop) === 'B' || defineObjectType(prop) === 'E')) {
 			if (this.parents[prop]) {
@@ -155,15 +179,16 @@ export default class TrackInfoObject extends LabelClass {
 				this.parents[prop] = [object];
 			}
 		} else {
-			ErrorListener.throwError(3);
+			ErrorListener.throwError(0);
 		}
 	}
 
 	/**
-	 * 
+	 * Add parent with current property
 	 * @param {TrackInfoObject} object
+	 * @param {string|number|symbol} prop
 	 */
-	addParentIfNecessary(object, prop) {
+	addParentIfNecessary(object = undefined, prop = undefined) {
 		if (this.isTrackingProxy(object) &&
 			((defineObjectType(prop) === 'A') || defineObjectType(prop) === 'B' || defineObjectType(prop) === 'E')) {
 			if (this.parents[prop]) {
@@ -174,7 +199,7 @@ export default class TrackInfoObject extends LabelClass {
 				this.parents[prop] = [object];
 			}
 		} else {
-			ErrorListener.throwError(3);
+			ErrorListener.throwError(0);
 		}
 	}
 }
