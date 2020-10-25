@@ -54,6 +54,7 @@ export default class ProxyHandler extends LabelClass {
 		} else {
 			const oldValue = Reflect.get(target, prop);
 			const resultOfReflect = Reflect.set(target, prop, value);
+			const newValue = Reflect.get(target, prop);
 			if (resultOfReflect) {
 				if (value instanceof Object) {
 					if (this.info.isTrackingProxy(value)) {
@@ -64,22 +65,31 @@ export default class ProxyHandler extends LabelClass {
 				const argsToCommand = {
 					props: [prop],
 					oldValue: oldValue,
-					newValue: value
+					newValue: newValue
 				};
+				const firstTartget = target;
 				const sayParentsCommand = new Command(function (target, prop, value) {
 					const commandArguments = value.args[0];
+					let continueInform = true;
 					if (this.info.callFunction) {
 						this.info.callFunction(target, commandArguments.props, commandArguments.oldValue, commandArguments.newValue);
+						if (Reflect.get(firstTartget, commandArguments.props[0]) != newValue) {
+							continueInform = false;
+						}
 					}
-					for (const parentProperty in this.info.parents) {
-						for (const parent of this.info.parents[parentProperty]) {
-							argsToCommand.props.push(parentProperty);
-							parent.runFunction = sayParentsCommand;
-							argsToCommand.props.pop(parentProperty);
+					if (continueInform) {
+						for (const parentProperty in this.info.parents) {
+							for (const parent of this.info.parents[parentProperty]) {
+								argsToCommand.props.push(parentProperty);
+								parent.runFunction = sayParentsCommand;
+								argsToCommand.props.pop(parentProperty);
+							}
 						}
 					}
 				}, argsToCommand);
-				this.info.proxy.runFunction = sayParentsCommand;
+				if (newValue !== oldValue) {
+					this.info.proxy.runFunction = sayParentsCommand;
+				}
 				return true;
 			} else {
 				return false;
