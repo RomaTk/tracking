@@ -1,17 +1,16 @@
 import LabelClass from '../label-class.js';
 import defineObjectType from "../define-object-type/index.js";
-import ProxyHandler from "./handler/index.js";
+import ProxyHandler, {nameOfproperty as nameOfHandlerProperty} from "./handler/index.js";
 import ErrorListener from "../error-listener/index.js";
 
 /**
  * This class is used to create new Proxy object
  */
-export default class TrackingProxy extends LabelClass{
+export default class TrackingProxy extends LabelClass {
 	/**
-	 * 
-	 * @param {*} target Object which should be proxied
+	 * @param {object} target Object which should be proxied
 	 */
-	constructor(target = undefined) {
+	constructor(target = undefined, func = undefined) {
 		super();
 		if (target === undefined) {
 			ErrorListener.throwError(0);
@@ -22,8 +21,16 @@ export default class TrackingProxy extends LabelClass{
 			ErrorListener.throwError(0);
 		}
 
-		this.proxyObject = new Proxy(target, new ProxyHandler(target, undefined));  
-		
-		return this.proxyObject; 
+		const proxyHandler = new ProxyHandler(target, func);
+		Object.defineProperty(target, nameOfHandlerProperty, {
+			value: proxyHandler,
+			configurable: false,
+			enumerable: false,
+			writable: false
+		});
+		this.proxyObject = new Proxy(target, proxyHandler);
+		proxyHandler.info.proxy = this.proxyObject;
+
+		return this.proxyObject;
 	}
 }
