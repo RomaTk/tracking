@@ -170,8 +170,8 @@ export default class TrackInfoObject extends LabelClass {
 		if (this.isTrackingProxy(object) &&
 			((defineObjectType(prop) === 'A') || defineObjectType(prop) === 'B' || defineObjectType(prop) === 'E')) {
 			if (this.parents[prop]) {
-				if (!this.parents.includes(object)) {
-					this.parents.push(object);
+				if (!this.parents[prop].includes(object)) {
+					this.parents[prop].push(object);
 				} else {
 					ErrorListener.throwError(2);
 				}
@@ -192,11 +192,59 @@ export default class TrackInfoObject extends LabelClass {
 		if (this.isTrackingProxy(object) &&
 			((defineObjectType(prop) === 'A') || defineObjectType(prop) === 'B' || defineObjectType(prop) === 'E')) {
 			if (this.parents[prop]) {
-				if (!this.parents.includes(object)) {
-					this.parents.push(object);
+				if (!this.parents[prop].includes(object)) {
+					this.parents[prop].push(object);
 				}
 			} else {
 				this.parents[prop] = [object];
+			}
+		} else {
+			ErrorListener.throwError(0);
+		}
+	}
+
+	/**
+	 * Remove parent with current property with throwingError if not exists
+	 * @param {TrackInfoObject} object
+	 * @param {string|number|symbol} prop
+	*/
+	removeParent(object = undefined, prop = undefined) {
+		if (this.isTrackingProxy(object) &&
+			((defineObjectType(prop) === 'A') || defineObjectType(prop) === 'B' || defineObjectType(prop) === 'E')) {
+			if (this.parents[prop]) {
+				const indexOfParent = this.parents[prop].indexOf(object);
+				if (indexOfParent > -1) {
+					this.parents[prop].splice(indexOfParent, 1);
+				} else {
+					ErrorListener.throwError(3);
+				}
+				if (this.parents[prop].length === 0) {
+					delete this.parents[prop];
+				}
+			} else {
+				ErrorListener.throwError(3);
+			}
+		} else {
+			ErrorListener.throwError(0);
+		}
+	}
+
+	/**
+	 * Remove parent with current property
+	 * @param {TrackInfoObject} object
+	 * @param {string|number|symbol} prop
+	*/
+	removeParentIfNecessary(object = undefined, prop = undefined) {
+		if (this.isTrackingProxy(object) &&
+			((defineObjectType(prop) === 'A') || defineObjectType(prop) === 'B' || defineObjectType(prop) === 'E')) {
+			if (this.parents[prop]) {
+				const indexOfParent = this.parents[prop].indexOf(object);
+				if (indexOfParent > -1) {
+					this.parents[prop].splice(indexOfParent, 1);
+				}
+				if (this.parents[prop].length === 0) {
+					delete this.parents[prop];
+				}
 			}
 		} else {
 			ErrorListener.throwError(0);

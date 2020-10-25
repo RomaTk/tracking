@@ -56,11 +56,23 @@ export default class ProxyHandler extends LabelClass {
 			const resultOfReflect = Reflect.set(target, prop, value);
 			const newValue = Reflect.get(target, prop);
 			if (resultOfReflect) {
-				if (value instanceof Object) {
-					if (this.info.isTrackingProxy(value)) {
-						value[nameOfproperty].info.addParentIfNecessary(this.info.proxy, prop);
+				// add object parent
+				if (newValue !== oldValue) {
+					if (oldValue instanceof Object) {
+						if (this.info.isTrackingProxy(oldValue)) {
+							oldValue[nameOfproperty].info.removeParent(this.info.proxy, prop);
+						}
+					}
+
+					if (newValue instanceof Object) {
+						if (this.info.isTrackingProxy(newValue)) {
+							newValue[nameOfproperty].info.addParent(this.info.proxy, prop);
+						}
 					}
 				}
+
+
+
 
 				const argsToCommand = {
 					props: [prop],
