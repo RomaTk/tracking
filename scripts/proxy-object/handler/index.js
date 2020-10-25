@@ -4,6 +4,10 @@ import defineObjectType from "../../define-object-type/index.js";
 import ErrorListener from "../../error-listener/index.js";
 import Command from "../../command-object/index.js";
 
+/**
+ * @constant nameOfproperty the property with wich ProxyHandler saved in TrackingProxy
+ * @type {string}
+ */
 export const nameOfproperty = 'proxyHandler';
 
 /**
@@ -11,7 +15,6 @@ export const nameOfproperty = 'proxyHandler';
  */
 export default class ProxyHandler extends LabelClass {
 	/**
-	 * 
 	 * @param {*} target element which should be proxied
 	 * @param {function | undefined} func function which will eval 
 	 */
@@ -28,7 +31,7 @@ export default class ProxyHandler extends LabelClass {
 	}
 
 	/**
-	 * 
+	 * setter
 	 * @param {*} target the object which was changed
 	 * @param {string|number|symbol} prop the property of object (or name of command (if value instance of Command)
 	 * @param {*} value the new value or Command object
@@ -40,7 +43,7 @@ export default class ProxyHandler extends LabelClass {
 	set(target = undefined, prop = undefined, value = undefined) {
 
 		// check admissible types
-		if (target === undefined || defineObjectType(target) !== 'C') {
+		if (target === undefined || (defineObjectType(target) !== 'C' && defineObjectType(target) !== 'D')) {
 			ErrorListener.throwError(0);
 		} else if (prop === undefined || (defineObjectType(prop) !== 'A' && defineObjectType(prop) !== 'B')) {
 			ErrorListener.throwError(0);
@@ -64,6 +67,7 @@ export default class ProxyHandler extends LabelClass {
 					newValue: value
 				};
 				const sayParentsCommand = new Command(function (target, prop, value) {
+					console.log({target, prop, value});
 					const commandArguments = value.args[0];
 					if (this.info.callFunction) {
 						this.info.callFunction(target, commandArguments.props, commandArguments.oldValue, commandArguments.newValue);
@@ -85,7 +89,7 @@ export default class ProxyHandler extends LabelClass {
 	}
 
 	/**
-	 * 
+	 * getter
 	 * @param {*} target the object which value was taken
 	 * @param {string|number|symbol} prop the property of object
 	 * @param {*} reciever the reciever
@@ -93,7 +97,7 @@ export default class ProxyHandler extends LabelClass {
 	get(target = undefined, prop = undefined, reciever = undefined) {
 
 		// check admissible types
-		if (target === undefined || defineObjectType(target) !== 'C') {
+		if (target === undefined || (defineObjectType(target) !== 'C' && defineObjectType(target) !== 'D')) {
 			ErrorListener.throwError(0);
 		} else if (prop === undefined || (defineObjectType(prop) !== 'A' && defineObjectType(prop) !== 'B')) {
 			ErrorListener.throwError(0);
