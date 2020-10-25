@@ -37,7 +37,7 @@ export default class Command extends LabelClass {
 				if (propertyType === 'A' || propertyType === 'B' || propertyType === 'E') {
 					if (prop === 'runFunction') {
 						const runFunction = this.func.bind(object);
-						runFunction(target, prop, value, ...this.args);
+						runFunction(object.info.proxy, prop, value, ...this.args);
 					} else {
 						return false;
 					}
