@@ -1,14 +1,17 @@
 import LabelClass from '../label-class.js';
 import ErrorListener from "../error-listener/index.js";
+import TrackingProxy from "../proxy-object/index.js";
+import ProxyHandler, {nameOfproperty as nameOfHandlerProperty} from "../proxy-object/handler/index.js";
+import defineObjectType from "../define-object-type/index.js";
 
 /**
- * Used to execute the command in this library
+ * Used to run a command in this TrackingProxy object
  */
 export default class Command extends LabelClass {
 	/**
-	 * 
-	 * @param {function|undefined} func - function to eval
-	 * @param  {...any} args - arguments for function
+	 * Create the command with function to run in TrackingProxy object
+	 * @param {function=} func
+	 * @param  {...any=} args
 	 */
 	constructor(func = undefined, ...args) {
 		super(func, ...args);
@@ -20,19 +23,33 @@ export default class Command extends LabelClass {
 	}
 
 	/**
-	 * 
-	 * @param {Proxy} object 
-	 * @param {*} target 
-	 * @param {string|number} prop 
-	 * @param {*} value 
+	 * Choose what to do with TrackingProxy object
+	 * @param {TrackingProxy} object
+	 * @param {object} target
+	 * @param {string|number|symbol} prop 
+	 * @param {Command} value
 	 */
-	execute(object, target, prop, value) {
-		if (prop === 'runFunction') {
-			const runFunction = this.func.bind(object);
-			runFunction(target, prop, value, ...this.args);
+	execute(object = undefined, target = undefined, prop = undefined, value) {
+		if (object !== undefined && target !== undefined && prop !== undefined
+			&& target instanceof Object && value instanceof Command) {
+			if (target[nameOfHandlerProperty] && target[nameOfHandlerProperty] instanceof ProxyHandler) {
+				const propertyType = defineObjectType(prop);
+				if (propertyType === 'A' || propertyType === 'B' || propertyType === 'E') {
+					if (prop === 'runFunction') {
+						const runFunction = this.func.bind(object);
+						runFunction(target, prop, value, ...this.args);
+					} else {
+						return false;
+					}
+					return true;
+				} else {
+					ErrorListener.throwError(0);
+				}
+			} else {
+				ErrorListener.throwError(4);
+			}
 		} else {
-			return false;
+			ErrorListener.throwError(0);
 		}
-		return true;
 	}
 }
