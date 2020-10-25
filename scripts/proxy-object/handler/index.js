@@ -67,7 +67,6 @@ export default class ProxyHandler extends LabelClass {
 					newValue: value
 				};
 				const sayParentsCommand = new Command(function (target, prop, value) {
-					console.log({target, prop, value});
 					const commandArguments = value.args[0];
 					if (this.info.callFunction) {
 						this.info.callFunction(target, commandArguments.props, commandArguments.oldValue, commandArguments.newValue);
