@@ -8,8 +8,7 @@ import ErrorListener from "../error-listener/index.js";
  */
 export default class TrackingProxy extends LabelClass {
 	/**
-	 * 
-	 * @param {*} target Object which should be proxied
+	 * @param {object} target Object which should be proxied
 	 */
 	constructor(target = undefined, func = undefined) {
 		super();
