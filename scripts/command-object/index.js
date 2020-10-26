@@ -20,6 +20,7 @@ export default class Command extends LabelClass {
 		}
 		this.func = func;
 		this.args = args;
+		this._doOnceFunctions = [];
 	}
 
 	/**
@@ -51,5 +52,27 @@ export default class Command extends LabelClass {
 		} else {
 			ErrorListener.throwError(0);
 		}
+	}
+
+	/**
+	 * Set function which to do once after command done (if value was not changed)
+	 * @param {function} func 
+	 */
+	addDoOnce(func = undefined) {
+		if (func && (typeof func === 'function')) {
+			if (!this._doOnceFunctions.includes(func)) {
+				this._doOnceFunctions.push(func);
+			}
+		} else {
+			ErrorListener.throwError(0);
+		}
+	}
+
+	/**
+	 * Return the array of functions to run once after command done (if value was not changed)
+	 * @returns {function[]}
+	 */
+	get doOnceFunctions() {
+		return this._doOnceFunctions;
 	}
 }

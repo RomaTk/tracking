@@ -1,23 +1,9 @@
-import TrackingProxy from "./scripts/proxy-object/index.js";
-
-let totalObjects = 0;
-let newObjectTop = new TrackingProxy([], function (target, properties, oldValue, newValue) {
-	if (Array.isArray(target) && properties[0] !== 'length' && !(Array.isArray(newValue))) {
-		totalObjects += 1;
-	}
-	if (Array.isArray(oldValue)) {
-		totalObjects -= oldValue.length;
-	}
-	if (Array.isArray(newValue)) {
-		totalObjects += newValue.length;
-	}
-});
-
-
-let newObject = new TrackingProxy([]);
-newObjectTop.push(newObject);
-newObjectTop.push(newObject);
-newObject.push(1);
-newObject.push(2);
-
-console.log(totalObjects);
+export {default as Command} from './scripts/command-object/index.js';
+export * as CommonCommands from './scripts/common-commands/index.js';
+export {default as defineObjectType} from './scripts/define-object-type/index.js';
+export {default as errorDictionaty} from './scripts/error-listener/errors-dictionary.js';
+export {default as ErrorListener} from './scripts/error-listener/index.js';
+export {default as TrackingProxy} from './scripts/proxy-object/index.js';
+export {default as ProxyHandler, nameOfproperty as nameOfHandlerProperty} from "./scripts/proxy-object/handler/index.js";
+export {default as TrackInfoObject} from "./scripts/track-info-object/index.js";
+export {default as LabelClass} from './scripts/label-class.js';
