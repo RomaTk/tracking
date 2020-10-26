@@ -101,6 +101,11 @@ export default class ProxyHandler extends LabelClass {
 				}, argsToCommand);
 				if (newValue !== oldValue) {
 					this.info.proxy.runFunction = sayParentsCommand;
+					if (newValue === Reflect.get(target, prop)) {
+						for (const func of sayParentsCommand.doOnceFunctions) {
+							func(target, prop, oldValue, newValue);
+						}
+					}
 				}
 				return true;
 			} else {
